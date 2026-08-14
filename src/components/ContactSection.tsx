@@ -15,6 +15,10 @@ import {
 import { BUSINESS_INFO } from '../data/daycareData';
 import { ContactFormData } from '../types';
 
+// Paste the Web App URL you get after deploying the Google Apps Script
+// (see google-apps-script.gs / SETUP INSTRUCTIONS provided separately).
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIvtXK5b_nBFqsooYA_GdIpPeEaTh5ia-bjYyMYw6WPX4C3dpz7_fhk7UVzv-JNkEpSg/exec';
+
 export const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState<ContactFormData>({
     parentName: '',
@@ -37,7 +41,7 @@ export const ContactSection: React.FC = () => {
     if (errorMessage) setErrorMessage('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic Validation
@@ -57,11 +61,32 @@ export const ContactSection: React.FC = () => {
     setIsSubmitting(true);
     setErrorMessage('');
 
-    // Simulate reliable submission
-    setTimeout(() => {
+    try {
+      const payload = new FormData();
+      payload.append('parentName', formData.parentName);
+      payload.append('email', formData.email);
+      payload.append('phone', formData.phone);
+      payload.append('programInterest', formData.programInterest);
+      payload.append('preferredContactTime', formData.preferredContactTime);
+      payload.append('message', formData.message);
+
+      // Google Apps Script web apps don't return CORS headers, so we send
+      // the request in 'no-cors' mode. We can't read the response back,
+      // but the submission still goes through and lands in the Sheet/email.
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: payload,
+      });
+
       setIsSubmitting(false);
       setIsSubmitted(true);
-    }, 800);
+    } catch (error) {
+      setIsSubmitting(false);
+      setErrorMessage(
+        'Something went wrong sending your message. Please try again, or call/email us directly.'
+      );
+    }
   };
 
   const handleReset = () => {
@@ -276,7 +301,6 @@ export const ContactSection: React.FC = () => {
                         required
                         value={formData.parentName}
                         onChange={handleChange}
-                        placeholder="e.g. Sarah Jenkins"
                         className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-blue-100 text-sm text-slate-900 placeholder:text-slate-400 transition"
                       />
                     </div>
@@ -301,7 +325,6 @@ export const ContactSection: React.FC = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleChange}
-                          placeholder="sarah@example.com"
                           className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-blue-100 text-sm text-slate-900 placeholder:text-slate-400 transition"
                         />
                       </div>
@@ -324,7 +347,6 @@ export const ContactSection: React.FC = () => {
                           name="phone"
                           value={formData.phone}
                           onChange={handleChange}
-                          placeholder="780-123-4567"
                           className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-blue-100 text-sm text-slate-900 placeholder:text-slate-400 transition"
                         />
                       </div>
@@ -391,7 +413,6 @@ export const ContactSection: React.FC = () => {
                       rows={4}
                       value={formData.message}
                       onChange={handleChange}
-                      placeholder="Tell us about your child's age, care schedule needed, or questions you have..."
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-blue-100 text-sm text-slate-900 placeholder:text-slate-400 transition resize-none"
                     />
                   </div>
