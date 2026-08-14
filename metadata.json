@@ -1,0 +1,6 @@
+{
+  "name": "Little Saints Daycare & OSC",
+  "description": "A modern, welcoming, and trustworthy website for Little Saints Daycare & OSC in Edmonton, AB providing quality childcare, out-of-school care, and play-based learning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
