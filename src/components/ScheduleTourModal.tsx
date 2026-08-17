@@ -10,6 +10,7 @@ import {
   Mail,
 } from 'lucide-react';
 import { BUSINESS_INFO } from '../data/daycareData';
+import { GOOGLE_SCRIPT_URL } from '../config/contactForm';
 
 interface ScheduleTourModalProps {
   isOpen: boolean;
@@ -36,7 +37,7 @@ export const ScheduleTourModal: React.FC<ScheduleTourModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.parentName.trim()) {
       setError('Please enter your name.');
@@ -50,10 +51,36 @@ export const ScheduleTourModal: React.FC<ScheduleTourModalProps> = ({
     setIsSubmitting(true);
     setError('');
 
-    setTimeout(() => {
+    try {
+      const payload = new FormData();
+      payload.append('parentName', formData.parentName);
+      payload.append('email', formData.email);
+      payload.append('phone', formData.phone);
+      payload.append('programInterest', formData.program);
+      payload.append('preferredContactTime', formData.preferredTime);
+      payload.append(
+        'message',
+        `Tour Request — Preferred Date: ${formData.preferredDate || 'Not specified'}, Preferred Time: ${formData.preferredTime}.${
+          formData.notes ? ` Notes: ${formData.notes}` : ''
+        }`
+      );
+      payload.append('formType', 'Schedule a Tour');
+
+      // Google Apps Script web apps don't return CORS headers, so we send
+      // the request in 'no-cors' mode. We can't read the response back,
+      // but the submission still goes through and lands in the Sheet/email.
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: payload,
+      });
+
       setIsSubmitting(false);
       setIsSubmitted(true);
-    }, 700);
+    } catch (err) {
+      setIsSubmitting(false);
+      setError('Something went wrong sending your request. Please try again, or call/email us directly.');
+    }
   };
 
   const handleResetAndClose = () => {
@@ -141,7 +168,6 @@ export const ScheduleTourModal: React.FC<ScheduleTourModalProps> = ({
                   required
                   value={formData.parentName}
                   onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
-                  placeholder="e.g. Jessica Miller"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-blue-100 text-sm text-slate-900 transition"
                 />
               </div>
@@ -155,7 +181,6 @@ export const ScheduleTourModal: React.FC<ScheduleTourModalProps> = ({
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="780-555-0123"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-blue-100 text-sm text-slate-900 transition"
                   />
                 </div>
@@ -167,7 +192,6 @@ export const ScheduleTourModal: React.FC<ScheduleTourModalProps> = ({
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="jessica@example.com"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-blue-100 text-sm text-slate-900 transition"
                   />
                 </div>
@@ -213,7 +237,6 @@ export const ScheduleTourModal: React.FC<ScheduleTourModalProps> = ({
                   rows={2}
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Any particular questions, child's age, or preferred start date..."
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-[#0F4C81] text-xs sm:text-sm text-slate-900 transition resize-none"
                 />
               </div>

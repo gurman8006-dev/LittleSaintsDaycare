@@ -14,10 +14,7 @@ import {
 } from 'lucide-react';
 import { BUSINESS_INFO } from '../data/daycareData';
 import { ContactFormData } from '../types';
-
-// Paste the Web App URL you get after deploying the Google Apps Script
-// (see google-apps-script.gs / SETUP INSTRUCTIONS provided separately).
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIvtXK5b_nBFqsooYA_GdIpPeEaTh5ia-bjYyMYw6WPX4C3dpz7_fhk7UVzv-JNkEpSg/exec';
+import { GOOGLE_SCRIPT_URL } from '../config/contactForm';
 
 export const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState<ContactFormData>({
