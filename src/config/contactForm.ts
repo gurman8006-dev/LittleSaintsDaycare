@@ -3,4 +3,4 @@
 // Shared by ContactSection and ScheduleTourModal so every form on the
 // site submits to the same place.
 export const GOOGLE_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbxIvtXK5b_nBFqsooYA_GdIpPeEaTh5ia-bjYyMYw6WPX4C3dpz7_fhk7UVzv-JNkEpSg/exec';
+  'https://script.google.com/macros/s/AKfycbz7SGhpUL3P9gAP-RclUoVDUW9T5361EV9s7C4vlO_7Ozv2I4LxyEKUv_5XJ01fo_Ly/exec';
